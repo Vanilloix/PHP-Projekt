@@ -39,8 +39,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
+
+
 <form method="POST" action="login.php">
     <h2>🔐 Login</h2>
+    
+    <?php if (isset($_GET['logout'])): ?>
+        <p class="info" style="color: green; text-align: center;">
+            ✅ Du wurdest erfolgreich ausgeloggt.
+        </p>
+    <?php endif; ?>
+
     <?php if ($error): ?><p class="error"><?= $error ?></p><?php endif; ?>
     <input type="text" name="username" placeholder="Benutzername" required>
     <input type="password" name="password" placeholder="Passwort" required>
