@@ -1,5 +1,5 @@
 <?php
-
+require_once 'session.php';
 require_once 'config/db.php'; // Datenbankverbindung einbinden
 
 // Fehleranzeige aktivieren

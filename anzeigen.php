@@ -1,4 +1,6 @@
 <?php
+require_once 'session.php';
+require_once 'config/db.php';
 require_once 'config/db.php'; // DB-Verbindung einbinden
 
 // Fehleranzeige aktivieren
