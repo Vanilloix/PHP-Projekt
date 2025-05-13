@@ -54,6 +54,32 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <h1>📊 Messwerte Übersicht</h1>
 
+<!-- 🔘 CSV Export Button + Style -->
+<style>
+  .export-btn {
+    margin: 20px 0;
+    padding: 10px 20px;
+    background: green;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .export-btn:hover {
+    background: darkgreen;
+    transform: scale(1.03);
+  }
+</style>
+
+<a href="export.php" style="text-decoration: none;">
+  <button class="export-btn">⬇️ CSV Exportieren</button>
+</a>
+
+
+
 <!-- Filterformular -->
 <form method="get" action="index.php">
     <label for="type">Mess-Typ:</label>
