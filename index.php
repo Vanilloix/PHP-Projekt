@@ -2,9 +2,6 @@
 require_once 'session.php';
 require_once 'config/db.php';
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
 // Filter lesen
 $typeFilter = isset($_GET['type']) ? $_GET['type'] : '';
 $dateFrom = isset($_GET['date_from']) ? $_GET['date_from'] : '';
@@ -53,32 +50,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
 
 <h1>📊 Messwerte Übersicht</h1>
-
-<!-- 🔘 CSV Export Button + Style -->
-<style>
-  .export-btn {
-    margin: 20px 0;
-    padding: 10px 20px;
-    background: green;
-    color: white;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease;
-  }
-
-  .export-btn:hover {
-    background: darkgreen;
-    transform: scale(1.03);
-  }
-</style>
-
-<a href="export.php" style="text-decoration: none;">
-  <button class="export-btn">⬇️ CSV Exportieren</button>
-</a>
-
-
 
 <!-- Filterformular -->
 <form method="get" action="index.php">
@@ -129,5 +100,23 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <p>⚠️ Keine Messdaten gefunden.</p>
 <?php endif; ?>
 
-</body>
-</html>
+<!-- Footer Navigation -->
+<div style="margin-top: 30px; text-align: center;">
+    <a href="diagramm.php" style="margin: 0 10px; text-decoration: none;">
+        📈 <strong>Zum Diagramm</strong>
+    </a> |
+    <a href="export.php" style="margin: 0 10px; text-decoration: none;">
+        📥 <strong>CSV Export</strong>
+    </a> |
+    <a href="import.php" style="margin: 0 10px; text-decoration: none;">
+        ➕ <strong>CSV Import</strong>
+    </a>
+    <?php if (isset($_SESSION['user_id'])): ?>
+        | <a href="users.php" style="margin: 0 10px; text-decoration: none;">
+            👥 <strong>Benutzer</strong>
+        </a>
+        | <a href="logout.php" style="margin: 0 10px; text-decoration: none;">
+            📛 <strong>Logout</strong>
+        </a>
+    <?php endif; ?>
+</div>
