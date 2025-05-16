@@ -112,7 +112,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         ➕ <strong>CSV Import</strong>
     </a>
     <?php if (isset($_SESSION['user_id'])): ?>
-        | <a href="users.php" style="margin: 0 10px; text-decoration: none;">
+        | <a href="admin/user_list.php" style="margin: 0 10px; text-decoration: none;">
             👥 <strong>Benutzer</strong>
         </a>
         | <a href="logout.php" style="margin: 0 10px; text-decoration: none;">
@@ -120,3 +120,4 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </a>
     <?php endif; ?>
 </div>
+
