@@ -2,12 +2,11 @@
 require_once 'session.php';
 require_once 'config/db.php';
 
-// Filter lesen
-$typeFilter = isset($_GET['type']) ? $_GET['type'] : '';
-$dateFrom = isset($_GET['date_from']) ? $_GET['date_from'] : '';
-$dateTo = isset($_GET['date_to']) ? $_GET['date_to'] : '';
+// Filter auslesen
+$typeFilter = $_GET['type'] ?? '';
+$dateFrom   = $_GET['date_from'] ?? '';
+$dateTo     = $_GET['date_to'] ?? '';
 
-// SQL vorbereiten
 $sql = "SELECT * FROM project_measurements WHERE 1=1";
 $params = [];
 
@@ -15,12 +14,10 @@ if ($typeFilter !== '') {
     $sql .= " AND additional_type = :type";
     $params[':type'] = $typeFilter;
 }
-
 if ($dateFrom !== '') {
     $sql .= " AND timestamp >= :from";
     $params[':from'] = $dateFrom . " 00:00:00";
 }
-
 if ($dateTo !== '') {
     $sql .= " AND timestamp <= :to";
     $params[':to'] = $dateTo . " 23:59:59";
@@ -35,89 +32,88 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Messwert-Übersicht</title>
-    <style>
-        body { font-family: Arial; padding: 20px; background: #f2f6fa; }
-        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
-        th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
-        th { background: #dbeeff; }
-        form { margin-bottom: 20px; }
-        label { margin-right: 10px; }
-        input, select { padding: 5px 10px; margin-right: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <title>🌤️ Wetterdaten Übersicht</title>
+  <link rel="stylesheet" href="assets/styles.css">
 </head>
-<body>
+<body class="main-bg">
 
-<h1>📊 Messwerte Übersicht</h1>
+<div class="container">
+  <h1>🌸 Messwerte Übersicht</h1>
 
-<!-- Filterformular -->
-<form method="get" action="index.php">
-    <label for="type">Mess-Typ:</label>
-    <select name="type" id="type">
-        <option value="">Alle</option>
-        <option value="CO2" <?= $typeFilter == 'CO2' ? 'selected' : '' ?>>CO2</option>
-        <option value="Licht" <?= $typeFilter == 'Licht' ? 'selected' : '' ?>>Licht</option>
-        <option value="Spannung" <?= $typeFilter == 'Spannung' ? 'selected' : '' ?>>Spannung</option>
+  <!-- Filterformular -->
+  <form class="filter-box" method="get" action="index.php">
+    <label>Typ:</label>
+    <select name="type">
+      <option value="">Alle</option>
+      <option value="CO2"      <?= $typeFilter == 'CO2' ? 'selected' : '' ?>>CO2</option>
+      <option value="Licht"    <?= $typeFilter == 'Licht' ? 'selected' : '' ?>>Licht</option>
+      <option value="Spannung" <?= $typeFilter == 'Spannung' ? 'selected' : '' ?>>Spannung</option>
     </select>
 
-    <label for="date_from">Von:</label>
-    <input type="date" name="date_from" id="date_from" value="<?= htmlspecialchars($dateFrom) ?>">
+    <label>Von:</label>
+    <input type="date" name="date_from" value="<?= htmlspecialchars($dateFrom) ?>">
 
-    <label for="date_to">Bis:</label>
-    <input type="date" name="date_to" id="date_to" value="<?= htmlspecialchars($dateTo) ?>">
+    <label>Bis:</label>
+    <input type="date" name="date_to" value="<?= htmlspecialchars($dateTo) ?>">
 
-    <button type="submit">Filtern</button>
-</form>
+    <button type="submit">🎯 Filtern</button>
+  </form>
 
-<!-- Tabelle -->
-<?php if (count($data) > 0): ?>
-<table>
-    <thead>
+  <!-- Tabelle -->
+  <?php if (count($data) > 0): ?>
+    <table class="fancy-table">
+      <thead>
         <tr>
-            <th>Timestamp</th>
-            <th>Temperatur (°C)</th>
-            <th>Luftfeuchtigkeit (%)</th>
-            <th>Typ</th>
-            <th>Wert</th>
-            <th>Beschreibung</th>
+          <th>⏱️ Zeit</th>
+          <th>🌡️ Temperatur (°C)</th>
+          <th>💧 Luftfeuchtigkeit (%)</th>
+          <th>⚙️ Typ</th>
+          <th>📈 Wert</th>
+          <th>📝 Beschreibung</th>
         </tr>
-    </thead>
-    <tbody>
+      </thead>
+      <tbody>
         <?php foreach ($data as $row): ?>
-        <tr>
+          <tr>
             <td><?= $row['timestamp'] ?></td>
-            <td><?= $row['temperature'] ?></td>
+            <td>
+              <?php
+                $temp = $row['temperature'];
+                if ($temp < 10) {
+                    echo "<span class='badge cold'>❄️ {$temp}°C</span>";
+                } elseif ($temp <= 25) {
+                    echo "<span class='badge mild'>🌼 {$temp}°C</span>";
+                } else {
+                    echo "<span class='badge hot'>🔥 {$temp}°C</span>";
+                }
+              ?>
+            </td>
             <td><?= $row['humidity'] ?></td>
             <td><?= $row['additional_type'] ?></td>
             <td><?= $row['additional_value'] ?></td>
             <td><?= $row['description'] ?></td>
-        </tr>
+          </tr>
         <?php endforeach; ?>
-    </tbody>
-</table>
-<?php else: ?>
-    <p>⚠️ Keine Messdaten gefunden.</p>
-<?php endif; ?>
+      </tbody>
+    </table>
+  <?php else: ?>
+    <p class="empty-msg">❗ Keine Messdaten gefunden.</p>
+  <?php endif; ?>
 
-<!-- Footer Navigation -->
-<div style="margin-top: 30px; text-align: center;">
-    <a href="diagramm.php" style="margin: 0 10px; text-decoration: none;">
-        📈 <strong>Zum Diagramm</strong>
-    </a> |
-    <a href="export.php" style="margin: 0 10px; text-decoration: none;">
-        📥 <strong>CSV Export</strong>
-    </a> |
-    <a href="import.php" style="margin: 0 10px; text-decoration: none;">
-        ➕ <strong>CSV Import</strong>
-    </a>
+  <!-- Navigation -->
+  <div class="nav-links">
+    <a href="diagramm.php">📊 Diagramm</a>
+    <a href="export.php">📥 Export</a>
+    <a href="import.php">📤 Import</a>
     <?php if (isset($_SESSION['user_id'])): ?>
-        | <a href="admin/user_list.php" style="margin: 0 10px; text-decoration: none;">
-            👥 <strong>Benutzer</strong>
-        </a>
-        | <a href="logout.php" style="margin: 0 10px; text-decoration: none;">
-            📛 <strong>Logout</strong>
-        </a>
+      <a href="admin/user_list.php">👥 Benutzer</a>
+      <a href="logout.php">🔓 Logout</a>
+    <?php else: ?>
+      <a href="login.php">🔐 Login</a>
     <?php endif; ?>
+  </div>
 </div>
 
+</body>
+</html>
