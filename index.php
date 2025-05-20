@@ -78,17 +78,17 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <tr>
             <td><?= $row['timestamp'] ?></td>
             <td>
-              <?php
-                $temp = $row['temperature'];
-                if ($temp < 10) {
-                    echo "<span class='badge cold'>❄️ {$temp}°C</span>";
-                } elseif ($temp <= 25) {
-                    echo "<span class='badge mild'>🌼 {$temp}°C</span>";
-                } else {
-                    echo "<span class='badge hot'>🔥 {$temp}°C</span>";
-                }
-              ?>
-            </td>
+  <?php
+    $temp = $row['temperature'];
+    if ($temp < 10) {
+        echo "<span class='badge cold'>❄️ {$temp}°C</span>";
+    } elseif ($temp <= 25) {
+        echo "<span class='badge mild'>🌼 {$temp}°C</span>";
+    } else {
+        echo "<span class='badge hot'>🔥 {$temp}°C</span>";
+    }
+  ?>
+</td>
             <td><?= $row['humidity'] ?></td>
             <td><?= $row['additional_type'] ?></td>
             <td><?= $row['additional_value'] ?></td>
