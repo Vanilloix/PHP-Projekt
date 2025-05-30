@@ -27,27 +27,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Benutzer erstellen</title>
-    <style>
-        body { font-family: Arial; padding: 30px; background: #f5f9ff; }
-        form { background: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 8px rgba(0,0,0,0.1); width: 300px; }
-        label { display: block; margin: 10px 0 5px; }
-        input { width: 100%; padding: 8px; margin-bottom: 10px; }
-        button { background: green; color: white; padding: 8px 12px; border: none; cursor: pointer; }
-        .back { margin-top: 15px; display: inline-block; color: #007bff; text-decoration: none; }
-        .back:hover { text-decoration: underline; }
-    </style>
+  <meta charset="UTF-8">
+  <title>➕ Benutzer erstellen</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: #f0f4ff;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      text-align: center;
+      color: #4c1d95;
+    }
+
+    form label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      background: #d8b4fe;
+      color: #4c1d95;
+      border: none;
+      padding: 12px;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #c084fc;
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+      color: #6b21a8;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .error-msg {
+      color: #b91c1c;
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      padding: 10px;
+      margin-top: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
 
-<h2>➕ Benutzer erstellen</h2>
+<div class="container">
+  <a href="../startseite.php" class="back-link">⬅️ Zur Startseite</a>
 
-<?php if ($meldung): ?>
-<p style="color: red;"><?= $meldung ?></p>
-<?php endif; ?>
+  <h2>➕ Benutzer erstellen</h2>
 
-<form method="post">
+  <?php if ($meldung): ?>
+    <div class="error-msg"><?= htmlspecialchars($meldung) ?></div>
+  <?php endif; ?>
+
+  <form method="post">
     <label>Benutzername:</label>
     <input type="text" name="username" required>
 
@@ -55,9 +126,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <input type="password" name="password" required>
 
     <button type="submit">Erstellen</button>
-</form>
+  </form>
 
-<a class="back" href="user_list.php">⬅️ Zurück zur Übersicht</a>
+  <a class="back-link" href="user_list.php">⬅️ Zur Benutzerübersicht</a>
+</div>
 
 </body>
 </html>

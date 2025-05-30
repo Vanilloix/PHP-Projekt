@@ -2,6 +2,13 @@
 require_once '../session.php';
 require_once '../config/db.php';
 
+// 👇 Login-Prüfung mit richtiger Weiterleitung:
+if (!ist_eingeloggt()) {
+  header('Location: ../login.php');
+  exit;
+}
+
+
 $stmt = $pdo->query("SELECT * FROM project_users ORDER BY id ASC");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -9,46 +16,120 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Benutzerverwaltung</title>
-    <style>
-        body { font-family: Arial; padding: 30px; background: #f5f9ff; }
-        table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
-        th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
-        th { background-color: #dbeeff; }
-        a.btn { padding: 6px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; }
-        a.btn:hover { background: #0056b3; }
-    </style>
+  <meta charset="UTF-8">
+  <title>👥 Benutzerverwaltung</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Quicksand', sans-serif;
+      background: #f0f4ff;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #4c1d95;
+    }
+
+    .btn {
+      background: #ede9fe;
+      color: #4c1d95;
+      padding: 8px 16px;
+      text-decoration: none;
+      border-radius: 20px;
+      font-weight: bold;
+      transition: 0.2s;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background: #dcd0ff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background: #f3e8ff;
+      color: #4c1d95;
+    }
+
+    tr:nth-child(even) {
+      background-color: #faf5ff;
+    }
+
+    .top-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .back-link {
+      color: #6b21a8;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
 
-<h2>👥 Benutzerverwaltung</h2>
+<div class="container">
+  <div class="top-buttons">
+    <a href="../index.php" class="back-link">⬅️ Zur Startseite</a>
+    <a class="btn" href="user_create.php">➕ Benutzer hinzufügen</a>
+  </div>
 
-<p><a class="btn" href="user_create.php">➕ Benutzer hinzufügen</a></p>
+  <h2>👥 Benutzerverwaltung</h2>
 
-<table>
+  <table>
     <thead>
-        <tr>
-            <th>ID</th>
-            <th>Benutzername</th>
-            <th>Aktionen</th>
-        </tr>
+      <tr>
+        <th>ID</th>
+        <th>Benutzername</th>
+        <th>Aktionen</th>
+      </tr>
     </thead>
     <tbody>
-        <?php foreach ($users as $user): ?>
-        <tr>
-            <td><?= $user['id'] ?></td>
-            <td><?= htmlspecialchars($user['username']) ?></td>
-            <td>
-                <a class="btn" href="user_update_password.php?id=<?= $user['id'] ?>">🔑 Passwort ändern</a>
-                <a class="btn" href="user_delete.php?id=<?= $user['id'] ?>" onclick="return confirm('Benutzer wirklich löschen?')">🗑️ Löschen</a>
-            </td>
-        </tr>
-        <?php endforeach; ?>
+      <?php foreach ($users as $user): ?>
+      <tr>
+        <td><?= $user['id'] ?></td>
+        <td><?= htmlspecialchars($user['username']) ?></td>
+        <td>
+          <a class="btn" href="user_update_password.php?id=<?= $user['id'] ?>">🔑 Passwort</a>
+          <?php if ($user['id'] !== 1): ?>
+            <a class="btn" href="user_delete.php?id=<?= $user['id'] ?>" onclick="return confirm('Benutzer wirklich löschen?')">🗑️ Löschen</a>
+          <?php endif; ?>
+        </td>
+      </tr>
+      <?php endforeach; ?>
     </tbody>
-</table>
-
-<p><a class="btn" href="../index.php">⬅️ Zurück</a></p>
+  </table>
+</div>
 
 </body>
 </html>

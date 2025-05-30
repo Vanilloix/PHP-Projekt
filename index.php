@@ -2,117 +2,178 @@
 require_once 'session.php';
 require_once 'config/db.php';
 
-// Filter auslesen
-$typeFilter = $_GET['type'] ?? '';
-$dateFrom   = $_GET['date_from'] ?? '';
-$dateTo     = $_GET['date_to'] ?? '';
-
-$sql = "SELECT * FROM project_measurements WHERE 1=1";
-$params = [];
-
-if ($typeFilter !== '') {
-    $sql .= " AND additional_type = :type";
-    $params[':type'] = $typeFilter;
-}
-if ($dateFrom !== '') {
-    $sql .= " AND timestamp >= :from";
-    $params[':from'] = $dateFrom . " 00:00:00";
-}
-if ($dateTo !== '') {
-    $sql .= " AND timestamp <= :to";
-    $params[':to'] = $dateTo . " 23:59:59";
-}
-
-$sql .= " ORDER BY timestamp DESC";
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$isLoggedIn = ist_eingeloggt();
+$username = $_SESSION['username'] ?? 'Gast';
 ?>
 
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>🌤️ Wetterdaten Übersicht</title>
-  <link rel="stylesheet" href="assets/styles.css">
+  <title>🌤 Wetter-Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Quicksand', sans-serif;
+      background: url('assets/img/bg_dashboard.jpg') no-repeat center center fixed;
+      background-size: cover;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 2.5rem;
+      border-radius: 25px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(3px);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.4rem;
+      color: #4c1d95;
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1.5rem;
+      justify-items: center;
+    }
+
+    .circle-card {
+      background: #ede9fe;
+      border-radius: 20px;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      color: #4c1d95;
+      width: 140px;
+      min-height: 160px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      /* Animation init */
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    /* Wetter-Icons */
+    .circle-card img {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 0.8rem;
+    }
+
+    .circle-card span {
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
+
+    .circle-card:hover {
+      background: #d8b4fe;
+      transform: scale(1.05);
+    }
+
+    /* Animation */
+    @keyframes fadeInUp {
+      0% {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .circle-card:nth-child(1) { animation-delay: 0.1s; }
+    .circle-card:nth-child(2) { animation-delay: 0.2s; }
+    .circle-card:nth-child(3) { animation-delay: 0.3s; }
+    .circle-card:nth-child(4) { animation-delay: 0.4s; }
+    .circle-card:nth-child(5) { animation-delay: 0.5s; }
+    .circle-card:nth-child(6) { animation-delay: 0.6s; }
+    .circle-card:nth-child(7) { animation-delay: 0.7s; }
+    .circle-card:nth-child(8) { animation-delay: 0.8s; }
+
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: #666;
+    }
+  </style>
 </head>
-<body class="main-bg">
+<body>
 
 <div class="container">
-  <h1>🌸 Messwerte Übersicht</h1>
+  <h1>🌸 Wetterportal</h1>
+  <p class="welcome">Willkommen, <strong><?= htmlspecialchars($username) ?></strong> 👋</p>
 
-  <!-- Filterformular -->
-  <form class="filter-box" method="get" action="index.php">
-    <label>Typ:</label>
-    <select name="type">
-      <option value="">Alle</option>
-      <option value="CO2"      <?= $typeFilter == 'CO2' ? 'selected' : '' ?>>CO2</option>
-      <option value="Licht"    <?= $typeFilter == 'Licht' ? 'selected' : '' ?>>Licht</option>
-      <option value="Spannung" <?= $typeFilter == 'Spannung' ? 'selected' : '' ?>>Spannung</option>
-    </select>
+  <div class="icon-grid">
+    <a href="diagramm.php" class="circle-card">
+      <img src="assets/icons/sun-chart.svg" alt="Diagramm">
+      <span>Diagramm</span>
+    </a>
 
-    <label>Von:</label>
-    <input type="date" name="date_from" value="<?= htmlspecialchars($dateFrom) ?>">
+    <a href="import.php" class="circle-card">
+      <img src="assets/icons/cloud-upload.svg" alt="Import">
+      <span>Import</span>
+    </a>
 
-    <label>Bis:</label>
-    <input type="date" name="date_to" value="<?= htmlspecialchars($dateTo) ?>">
+    <a href="export.php" class="circle-card">
+      <img src="assets/icons/cloud-download.svg" alt="Export">
+      <span>Export</span>
+    </a>
 
-    <button type="submit">🎯 Filtern</button>
-  </form>
+    <a href="messwerte.php" class="circle-card">
+      <img src="assets/icons/wind-data.svg" alt="Messwerte">
+      <span>Messwerte</span>
+    </a>
 
-  <!-- Tabelle -->
-  <?php if (count($data) > 0): ?>
-    <table class="fancy-table">
-      <thead>
-        <tr>
-          <th>⏱️ Zeit</th>
-          <th>🌡️ Temperatur (°C)</th>
-          <th>💧 Luftfeuchtigkeit (%)</th>
-          <th>⚙️ Typ</th>
-          <th>📈 Wert</th>
-          <th>📝 Beschreibung</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($data as $row): ?>
-          <tr>
-            <td><?= $row['timestamp'] ?></td>
-            <td>
-  <?php
-    $temp = $row['temperature'];
-    if ($temp < 10) {
-        echo "<span class='badge cold'>❄️ {$temp}°C</span>";
-    } elseif ($temp <= 25) {
-        echo "<span class='badge mild'>🌼 {$temp}°C</span>";
-    } else {
-        echo "<span class='badge hot'>🔥 {$temp}°C</span>";
-    }
-  ?>
-</td>
-            <td><?= $row['humidity'] ?></td>
-            <td><?= $row['additional_type'] ?></td>
-            <td><?= $row['additional_value'] ?></td>
-            <td><?= $row['description'] ?></td>
-          </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
-  <?php else: ?>
-    <p class="empty-msg">❗ Keine Messdaten gefunden.</p>
-  <?php endif; ?>
+    <a href="add_measurement.php" class="circle-card">
+      <img src="assets/icons/thermo-plus.svg" alt="Hinzufügen">
+      <span>Hinzufügen</span>
+    </a>
 
-  <!-- Navigation -->
-  <div class="nav-links">
-    <a href="diagramm.php">📊 Diagramm</a>
-    <a href="export.php">📥 Export</a>
-    <a href="import.php">📤 Import</a>
-    <?php if (isset($_SESSION['user_id'])): ?>
-      <a href="admin/user_list.php">👥 Benutzer</a>
-      <a href="logout.php">🔓 Logout</a>
+    <a href="delete_measurement.php" class="circle-card">
+      <img src="assets/icons/rain-trash.svg" alt="Löschen">
+      <span>Löschen</span>
+    </a>
+
+    <a href="admin/user_list.php" class="circle-card">
+      <img src="assets/icons/user-settings.svg" alt="Benutzer">
+      <span>Benutzer</span>
+    </a>
+
+    <?php if ($isLoggedIn): ?>
+      <a href="logout.php" class="circle-card">
+        <img src="assets/icons/sunset-logout.svg" alt="Logout">
+        <span>Logout</span>
+      </a>
     <?php else: ?>
-      <a href="login.php">🔐 Login</a>
+      <a href="login.php" class="circle-card">
+        <img src="assets/icons/lock-cloud.svg" alt="Login">
+        <span>Login</span>
+      </a>
     <?php endif; ?>
   </div>
+
+  <div class="footer">© 2025 Wetterprojekt – mit ☁️ & 💜</div>
 </div>
 
 </body>
