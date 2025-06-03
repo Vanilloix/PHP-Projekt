@@ -2,6 +2,7 @@
 require_once 'session.php';
 require_once 'config/db.php';
 
+// Userstatus prüfen
 $isLoggedIn = ist_eingeloggt();
 $username = $_SESSION['username'] ?? 'Gast';
 ?>

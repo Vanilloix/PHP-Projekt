@@ -5,6 +5,7 @@ require_once 'config/db.php';
 $error = '';
 $success = '';
 
+// Formularverarbeitung
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
@@ -14,11 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($password !== $confirm) {
             $error = "⚠️ Die Passwörter stimmen nicht überein.";
         } else {
+            // Benutzername prüfen
             $stmt = $pdo->prepare("SELECT id FROM project_users WHERE username = :username");
             $stmt->execute([':username' => $username]);
             if ($stmt->fetch()) {
                 $error = "🚫 Benutzername existiert bereits.";
             } else {
+                // Hashen & Einfügen
                 $hashed = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT INTO project_users (username, password_hash) VALUES (:username, :password)");
                 $stmt->execute([':username' => $username, ':password' => $hashed]);
@@ -41,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     body {
       margin: 0;
       font-family: 'Quicksand', sans-serif;
-      background: url('assets/img/bg_login.jpg') no-repeat center center fixed;
+      background: url('assets/img/bg_dashboard.jpg') no-repeat center center fixed;
       background-size: cover;
       display: flex;
       align-items: center;

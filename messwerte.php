@@ -1,6 +1,7 @@
 <?php
 require_once 'config/db.php';
 
+// Alle Messdaten absteigend holen
 $stmt = $pdo->query("SELECT * FROM project_measurements ORDER BY timestamp DESC");
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

@@ -2,6 +2,7 @@
 require_once '../session.php';
 require_once '../config/db.php';
 
+// Prüfen ob eine Benutzer-ID übergeben wurde
 if (!isset($_GET['id'])) {
     header("Location: user_list.php");
     exit;
@@ -10,22 +11,26 @@ if (!isset($_GET['id'])) {
 $id = (int) $_GET['id'];
 $meldung = '';
 
+// Formularverarbeitung
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $neues_passwort = $_POST['password'];
 
     if (!empty($neues_passwort)) {
+        // Neues Passwort hashen und aktualisieren
         $hash = password_hash($neues_passwort, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("UPDATE project_users SET password_hash = ? WHERE id = ?");
         $stmt->execute([$hash, $id]);
 
+        // Weiterleitung nach erfolgreichem Update
         header("Location: user_list.php");
         exit;
     } else {
+        // Passwortfeld war leer
         $meldung = "Bitte ein neues Passwort eingeben.";
     }
 }
 
-// Nutzer anzeigen
+// Benutzername zur Anzeige laden
 $stmt = $pdo->prepare("SELECT username FROM project_users WHERE id = ?");
 $stmt->execute([$id]);
 $user = $stmt->fetch();
@@ -106,6 +111,7 @@ $user = $stmt->fetch();
     .error-msg {
       color: #b91c1c;
       background: #fee2e2;
+      background: url('assets/img/bg_dashboard.jpg') no-repeat center center fixed;
       border: 1px solid #fecaca;
       padding: 10px;
       margin-top: 15px;

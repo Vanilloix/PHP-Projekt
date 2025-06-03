@@ -9,6 +9,7 @@ if (!ist_eingeloggt()) {
 
 $msg = '';
 
+// CSV-Importprozess
 if (isset($_POST['import'])) {
     if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] == 0) {
         $fileTmpPath = $_FILES['csv_file']['tmp_name'];
@@ -20,7 +21,7 @@ if (isset($_POST['import'])) {
                 $row = 0;
                 while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
                     $row++;
-                    if ($row == 1) continue;
+                    if ($row == 1) continue; // Header überspringen
 
                     $stmt = $pdo->prepare("
                         INSERT INTO project_measurements 
@@ -60,7 +61,7 @@ if (isset($_POST['import'])) {
     body {
       margin: 0;
       font-family: 'Quicksand', sans-serif;
-      background: url('assets/img/bg_import.jpg') no-repeat center center fixed;
+      background: url('assets/img/bg_dashboard.jpg') no-repeat center center fixed;
       background-size: cover;
       display: flex;
       justify-content: center;

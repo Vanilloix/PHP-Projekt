@@ -1,17 +1,18 @@
 <?php
-// Stellt die Verbindung zur MySQL-Datenbank her
-
-$host = 'localhost'; // Datenbankserver
-$db = 'messdatenerfassung'; //Name der Datenbank
-$user = 'root'; // Benutzername
-$pass = ''; // Passwort
+// Konfiguration für Datenbankverbindung
+$host = 'localhost';            // Datenbank-Host
+$db = 'messdatenerfassung';     // Name der Datenbank
+$user = 'root';                 // Datenbankbenutzer
+$pass = '';                     // Datenbankpasswort (leer für local)
 
 try {
-    //Verbindet sich mit der Datenbank über PDO (PHP Data Objects)
+    // Verbindung herstellen mit PDO (sicher und objektorientiert)
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Fehler als Ausnahmen behandeln
+
+    // Fehler als Exception behandeln → bessere Fehlerdiagnose
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    // Falls etwas schiefläuft, abbrechen und Fehlermeldung anzeigen
+    // Bei Fehler: Script beenden und Fehlermeldung anzeigen
     die("Verbindung fehlgeschlagen: " . $e->getMessage());
 }
 ?>

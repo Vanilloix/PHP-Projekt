@@ -2,18 +2,19 @@
 require_once 'session.php';
 require_once 'config/db.php';
 
-// Abfrage Messwerte
+// Messwerte abrufen für die Anzeige
 $stmt = $pdo->query("SELECT * FROM project_measurements ORDER BY timestamp DESC");
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Löschung verarbeiten
+// Wenn Lösch-ID gesetzt ist
 if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
 
-    // Absichern, dass ID existiert
+    // Sicherheitscheck + Löschung durchführen
     $stmtDel = $pdo->prepare("DELETE FROM project_measurements WHERE id = ?");
     $stmtDel->execute([$id]);
 
+    // Redirect nach Löschung mit Status
     header("Location: delete_measurement.php?deleted=1");
     exit;
 }
@@ -29,6 +30,7 @@ if (isset($_GET['id'])) {
     body {
       font-family: 'Quicksand', sans-serif;
       background: linear-gradient(to bottom right, #fff7ed, #e0f2fe);
+      background: url('assets/img/bg_dashboard.jpg') no-repeat center center fixed;
       margin: 0;
       padding: 2rem;
     }

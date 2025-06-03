@@ -2,16 +2,17 @@
 require_once '../session.php';
 require_once '../config/db.php';
 
-// 👇 Login-Prüfung mit richtiger Weiterleitung:
+// Nur eingeloggte Benutzer dürfen auf diese Seite
 if (!ist_eingeloggt()) {
-  header('Location: ../login.php');
-  exit;
+    header('Location: ../login.php');
+    exit;
 }
 
-
+// Alle Benutzer aus der Datenbank abrufen
 $stmt = $pdo->query("SELECT * FROM project_users ORDER BY id ASC");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="de">
@@ -23,6 +24,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     body {
       margin: 0;
       font-family: 'Quicksand', sans-serif;
+      background: url('assets/img/bg_dashboard.jpg') no-repeat center center fixed;
       background: #f0f4ff;
       padding: 2rem;
     }

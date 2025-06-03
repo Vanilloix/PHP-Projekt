@@ -1,19 +1,23 @@
 <?php
-session_start();
+session_start(); // Sitzung starten
 require_once 'config/db.php';
 
 $error = '';
 
+// Nur POST verarbeiten
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
     if ($username && $password) {
+        // Benutzer mit Prepared Statement suchen
         $stmt = $pdo->prepare("SELECT * FROM project_users WHERE username = :username");
         $stmt->execute([':username' => $username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        // Passwort prüfen
         if ($user && password_verify($password, $user['password_hash'])) {
+            // Erfolg: Session-Variablen setzen
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             header("Location: index.php");
@@ -37,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     body {
       margin: 0;
       font-family: 'Quicksand', sans-serif;
-      background: url('assets/img/bg_login.jpg') no-repeat center center fixed;
+      background: url('assets/img/bg_dashboard.jpg') no-repeat center center fixed;
       background-size: cover;
       display: flex;
       align-items: center;

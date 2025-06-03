@@ -1,19 +1,22 @@
+/* Gesamtseiten-Styling */
 body {
   font-family: 'Comic Sans MS', cursive, sans-serif;
-  background: linear-gradient(to top, #fffbfc, #e0f7ff);
+  background: linear-gradient(to top, #fffbfc, #e0f7ff); /* sanfter Farbverlauf */
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 100vh; /* Volle Bildschirmhöhe */
   margin: 0;
 }
 
+/* Wrapper für Login-Zentrierung */
 .login-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* Login-Box Design */
 .login-box {
   background: #fff0f6;
   border: 2px solid #ffb6c1;
@@ -21,15 +24,17 @@ body {
   padding: 30px;
   max-width: 400px;
   width: 90%;
-  box-shadow: 0 8px 24px rgba(255, 182, 193, 0.5);
+  box-shadow: 0 8px 24px rgba(255, 182, 193, 0.5); /* rosa Schatten */
   text-align: center;
 }
 
+/* Titel-Styling */
 .login-box h2 {
   margin-bottom: 20px;
   color: #d63384;
 }
 
+/* Inputfelder */
 .login-box input {
   width: 100%;
   padding: 12px;
@@ -40,6 +45,7 @@ body {
   background: #fff8fb;
 }
 
+/* Button-Design */
 .login-box button {
   background-color: #ff69b4;
   color: white;
@@ -52,10 +58,12 @@ body {
   transition: background 0.3s ease;
 }
 
+/* Button Hover */
 .login-box button:hover {
   background-color: #ff1493;
 }
 
+/* Fehlerbox */
 .error-box {
   background: #ffe6ea;
   color: #cc0033;
@@ -65,6 +73,7 @@ body {
   margin-bottom: 15px;
 }
 
+/* Footer-Link unter Login */
 .login-footer {
   margin-top: 15px;
   font-size: 0.9em;
@@ -75,6 +84,7 @@ body {
   text-decoration: none;
 }
 
+/* Erfolgsmeldung */
 .success-box {
   background: #e6ffed;
   color: #198754;
@@ -84,13 +94,15 @@ body {
   margin-bottom: 15px;
 }
 
+/* Alternativer Hintergrund für spezielle Seiten */
 body.main-bg {
   background: #fefeff;
-  background-image: url('../assets/cute-bg.jpg'); /* z.B. Bild 1 von dir */
+  background-image: url('assets/img/bg_dashboard.jpg') no-repeat center center fixed;
   background-size: cover;
   font-family: 'Comic Sans MS', cursive, sans-serif;
 }
 
+/* Container für Inhalte */
 .container {
   background: rgba(255,255,255,0.9);
   padding: 2rem;
@@ -100,6 +112,7 @@ body.main-bg {
   box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
 
+/* Standardüberschrift */
 h1 {
   text-align: center;
   font-size: 2rem;
@@ -107,6 +120,7 @@ h1 {
   margin-bottom: 20px;
 }
 
+/* Filter-Boxen */
 .filter-box {
   display: flex;
   flex-wrap: wrap;
@@ -115,6 +129,7 @@ h1 {
   margin-bottom: 20px;
 }
 
+/* Tabelle im Fancy-Stil */
 .fancy-table {
   width: 100%;
   border-collapse: collapse;
@@ -131,6 +146,7 @@ h1 {
   background-color: #d9eaff;
 }
 
+/* Navigation */
 .nav-links {
   text-align: center;
   margin-top: 30px;
@@ -143,11 +159,13 @@ h1 {
   font-weight: bold;
 }
 
+/* Leere-Daten-Meldung */
 .empty-msg {
   text-align: center;
   color: #888;
 }
 
+/* Abzeichen-Styling */
 .badge {
   padding: 5px 12px;
   border-radius: 20px;
@@ -162,6 +180,7 @@ h1 {
   transform: scale(1.05);
 }
 
+/* Badge Varianten */
 .badge.cold {
   background-color: #e0f7ff;
   color: #0077b6;

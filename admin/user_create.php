@@ -1,24 +1,35 @@
 <?php
+// Session und Datenbankverbindung laden
 require_once '../session.php';
 require_once '../config/db.php';
 
 $meldung = '';
 
+// Prüfen ob das Formular per POST gesendet wurde
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Eingaben bereinigen
     $username = trim($_POST['username']);
     $passwort = $_POST['password'];
 
+    // Validierung: Felder müssen ausgefüllt sein
     if ($username && $passwort) {
+        // Passwort sicher hashen
         $hash = password_hash($passwort, PASSWORD_DEFAULT);
 
+        // Benutzer mit vorbereitetem Statement einfügen
         $stmt = $pdo->prepare("INSERT INTO project_users (username, password_hash) VALUES (?, ?)");
+        
+        // Ausführung prüfen
         if ($stmt->execute([$username, $hash])) {
+            // Erfolgreich: Zur Liste weiterleiten
             header('Location: user_list.php');
             exit;
         } else {
-            $meldung = "⚠️ Benutzername bereits vergeben oder Fehler!";
+            // Fehler beim Einfügen, z. B. Benutzername bereits vorhanden
+            $meldung = "Benutzername bereits vergeben oder Fehler!";
         }
     } else {
+        // Felder nicht ausgefüllt
         $meldung = "Bitte alle Felder ausfüllen.";
     }
 }
@@ -33,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <style>
     body {
       font-family: 'Quicksand', sans-serif;
+      background: url('assets/img/bg_dashboard.jpg') no-repeat center center fixed;
       background: #f0f4ff;
       margin: 0;
       padding: 2rem;

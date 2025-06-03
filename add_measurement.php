@@ -2,6 +2,7 @@
 require_once 'session.php';
 require_once 'config/db.php';
 
+// Zugriffsschutz: nur eingeloggte User
 if (!ist_eingeloggt()) {
     header("Location: login.php");
     exit;
@@ -9,7 +10,9 @@ if (!ist_eingeloggt()) {
 
 $msg = '';
 
+// Formularauswertung
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Werte mit Fallbacks
     $timestamp = $_POST['timestamp'] ?? date('Y-m-d H:i:s');
     $temperature = $_POST['temperature'] ?? null;
     $humidity = $_POST['humidity'] ?? null;
@@ -17,11 +20,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $additional_value = $_POST['additional_value'] ?? null;
     $description = $_POST['description'] ?? '';
 
+    // SQL Insert vorbereiten
     $stmt = $pdo->prepare("
         INSERT INTO project_measurements 
         (timestamp, temperature, humidity, additional_type, additional_value, description)
         VALUES (?, ?, ?, ?, ?, ?)
     ");
+
+    // Daten einfügen
     $stmt->execute([
         $timestamp,
         $temperature,
@@ -31,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description
     ]);
 
+    // Erfolgsmeldung setzen
     $msg = "✅ Datensatz wurde erfolgreich gespeichert!";
 }
 ?>
@@ -83,6 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     button {
       background: #10b981;
+      background: url('assets/img/bg_dashboard.jpg') no-repeat center center fixed;
       color: white;
       border: none;
       padding: 12px;
