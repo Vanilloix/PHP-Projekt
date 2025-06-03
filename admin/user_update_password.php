@@ -1,27 +1,28 @@
 <?php
+// Session starten und Datenbankverbindung laden
 require_once '../session.php';
 require_once '../config/db.php';
 
-// ID prüfen
+// Wenn keine ID übergeben wurde → Zurück zur Benutzerliste
 if (!isset($_GET['id'])) {
     header("Location: user_list.php");
     exit;
 }
 
-$id = (int) $_GET['id'];
-$meldung = '';
+$id = (int) $_GET['id']; // ID casten auf Integer
+$meldung = ''; // Platz für Rückmeldungen
 
-// Neues Passwort gesetzt?
+// Prüfen ob Formular abgeschickt wurde
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $neues_passwort = $_POST['password'];
 
     if (!empty($neues_passwort)) {
-        // Sicher hashen und speichern
+        // Neues Passwort hashen und in DB speichern
         $hash = password_hash($neues_passwort, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("UPDATE project_users SET password_hash = ? WHERE id = ?");
         $stmt->execute([$hash, $id]);
 
-        // Zurück zur Liste
+        // Danach zurück zur Benutzerliste
         header("Location: user_list.php");
         exit;
     } else {
@@ -29,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Username laden für Anzeige
+// Benutzername für Anzeige holen
 $stmt = $pdo->prepare("SELECT username FROM project_users WHERE id = ?");
 $stmt->execute([$id]);
 $user = $stmt->fetch();
@@ -122,20 +123,25 @@ $user = $stmt->fetch();
 <body>
 
 <div class="container">
+  <!-- Zurück zur Startseite -->
   <a href="../startseite.php" class="back-link">⬅️ Zur Startseite</a>
 
+  <!-- Titel mit Benutzername -->
   <h2>🔑 Passwort ändern für: <?= htmlspecialchars($user['username']) ?></h2>
 
+  <!-- Fehlermeldung anzeigen -->
   <?php if ($meldung): ?>
     <div class="error-msg"><?= htmlspecialchars($meldung) ?></div>
   <?php endif; ?>
 
+  <!-- Passwortformular -->
   <form method="post">
     <label>Neues Passwort:</label>
     <input type="password" name="password" required>
     <button type="submit">Speichern</button>
   </form>
 
+  <!-- Link zurück zur Benutzerliste -->
   <a class="back-link" href="user_list.php">⬅️ Zur Benutzerübersicht</a>
 </div>
 

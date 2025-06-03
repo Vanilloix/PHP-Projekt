@@ -20,9 +20,17 @@ if (isset($_POST['import'])) {
         if ($extension === 'csv') {
             if (($handle = fopen($fileTmpPath, 'r')) !== false) {
                 $row = 0;
-                while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+                while (($data = fgetcsv($handle, 1000, ";")) !== false) {
                     $row++;
-                    if ($row == 1) continue;
+
+                    // Überspringe Header-Zeile oder unvollständige Zeilen
+                    if ($row === 1 || count($data) < 6) continue;
+
+                    // Alle Werte bereinigen (Leerzeichen entfernen)
+                    $data = array_map('trim', $data);
+
+                    // Zeitstempel korrekt formatieren (von z. B. "03.06.2025 09:41" → "2025-06-03 09:41:00")
+                    $timestamp = date('Y-m-d H:i:s', strtotime(str_replace('.', '-', $data[0])));
 
                     $stmt = $pdo->prepare("
                         INSERT INTO project_measurements 
@@ -30,7 +38,7 @@ if (isset($_POST['import'])) {
                         VALUES (?, ?, ?, ?, ?, ?)
                     ");
                     $stmt->execute([
-                        $data[0] ?? null,
+                        $timestamp,
                         $data[1] ?? null,
                         $data[2] ?? null,
                         $data[3] ?? null,
@@ -44,39 +52,40 @@ if (isset($_POST['import'])) {
             } else {
                 $msg = "❌ Fehler beim Öffnen der CSV-Datei.";
             }
-            } elseif ($extension === 'json') {
-                $jsonContent = file_get_contents($fileTmpPath);
-                $jsonData = json_decode($jsonContent, true);
+        } elseif ($extension === 'json') {
+            $jsonContent = file_get_contents($fileTmpPath);
+            $jsonData = json_decode($jsonContent, true);
 
-                if (is_array($jsonData)) {
-                    foreach ($jsonData as $row) {
-                        $stmt = $pdo->prepare("
-                            INSERT INTO project_measurements 
-                            (timestamp, temperature, humidity, additional_type, additional_value, description)
-                            VALUES (?, ?, ?, ?, ?, ?)
-                        ");
-                        $stmt->execute([
-                            $row['timestamp'] ?? null,
-                            $row['temperature'] ?? null,
-                            $row['humidity'] ?? null,
-                            $row['additional_type'] ?? null,
-                            $row['additional_value'] ?? null,
-                            $row['description'] ?? null
-                        ]);
-                        $imported++;
-                    }
-                    $msg = "✅ JSON-Import abgeschlossen: $imported Messwerte übernommen.";
-                } else {
-                    $msg = "❌ Fehler beim Parsen der JSON-Datei.";
+            if (is_array($jsonData)) {
+                foreach ($jsonData as $row) {
+                    $stmt = $pdo->prepare("
+                        INSERT INTO project_measurements 
+                        (timestamp, temperature, humidity, additional_type, additional_value, description)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    ");
+                    $stmt->execute([
+                        $row['timestamp'] ?? null,
+                        $row['temperature'] ?? null,
+                        $row['humidity'] ?? null,
+                        $row['additional_type'] ?? null,
+                        $row['additional_value'] ?? null,
+                        $row['description'] ?? null
+                    ]);
+                    $imported++;
                 }
+                $msg = "✅ JSON-Import abgeschlossen: $imported Messwerte übernommen.";
+            } else {
+                $msg = "❌ Fehler beim Parsen der JSON-Datei.";
+            }
         } else {
-            $msg = "❌ Nur CSV oder XML erlaubt!";
+            $msg = "❌ Nur CSV oder JSON erlaubt!";
         }
     } else {
         $msg = "❗ Keine Datei hochgeladen oder Fehler beim Upload.";
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>

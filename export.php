@@ -48,15 +48,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         fputcsv($output, ['Zeitstempel', 'Temperatur', 'Feuchtigkeit', 'Typ', 'Wert', 'Beschreibung'], ';');
 
         foreach ($data as $row) {
-            fputcsv($output, [
-                date("d.m.Y H:i", strtotime($row['timestamp'])),
-                $row['temperature'],
-                $row['humidity'],
-                $row['additional_type'],
-                $row['additional_value'],
-                $row['description']
-            ], ';');
-        }
+        fputcsv($output, [
+            date("d.m.Y H:i", strtotime($row['timestamp'])),
+            "\t" . $row['temperature'], // ← so bleibt's in Excel Zahl
+            $row['humidity'],
+            $row['additional_type'],
+            $row['additional_value'],
+            $row['description']
+        ], ';');
+    }
+
 
         fclose($output);
     }

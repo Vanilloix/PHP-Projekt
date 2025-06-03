@@ -2,6 +2,7 @@
 require_once 'session.php';
 require_once 'config/db.php';
 
+// Nur für eingeloggte Benutzer zugänglich
 if (!ist_eingeloggt()) {
     header("Location: login.php");
     exit;
@@ -9,17 +10,18 @@ if (!ist_eingeloggt()) {
 
 $msg = '';
 
-// Einzel-Löschung über GET
+// --- Einzelne Zeile löschen via GET-Parameter ---
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $stmt = $pdo->prepare("DELETE FROM project_measurements WHERE id = ?");
     $stmt->execute([$_GET['id']]);
     $msg = "Messwert mit ID #" . intval($_GET['id']) . " wurde gelöscht.";
 }
 
-// Mehrfachlöschung über POST
+// --- Mehrere Einträge gleichzeitig löschen via POST (Checkbox) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_ids'])) {
     $ids = $_POST['delete_ids'];
     if (is_array($ids) && count($ids) > 0) {
+        // Dynamisch Platzhalter erstellen für die IN()-Klausel
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
         $stmt = $pdo->prepare("DELETE FROM project_measurements WHERE id IN ($placeholders)");
         $stmt->execute($ids);
@@ -29,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_ids'])) {
     }
 }
 
-// Daten abrufen
+// Messdaten abrufen zur Anzeige
 $stmt = $pdo->query("SELECT * FROM project_measurements ORDER BY timestamp DESC");
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -39,6 +41,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
   <meta charset="UTF-8">
   <title>🗑️ Messwerte löschen</title>
+  <!-- Design & Schrift -->
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -139,6 +142,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="container">
   <h2>🗑️ Messwerte löschen</h2>
 
+  <!-- Erfolg / Fehlernachricht -->
   <?php if ($msg): ?>
     <div class="msg"><?= htmlspecialchars($msg) ?></div>
   <?php endif; ?>
@@ -161,6 +165,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <tbody>
         <?php foreach ($data as $row): ?>
           <tr>
+            <!-- Checkbox für Mehrfachlöschung -->
             <td><input type="checkbox" name="delete_ids[]" value="<?= $row['id'] ?>"></td>
             <td><?= $row['id'] ?></td>
             <td><?= $row['timestamp'] ?></td>
@@ -169,6 +174,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <td><?= $row['additional_type'] ?></td>
             <td><?= $row['additional_value'] ?></td>
             <td><?= $row['description'] ?></td>
+            <!-- Direktlösch-Link mit Bestätigung -->
             <td>
               <a href="?id=<?= $row['id'] ?>" 
                  class="delete-icon" 

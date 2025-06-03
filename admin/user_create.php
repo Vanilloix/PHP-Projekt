@@ -1,31 +1,31 @@
 <?php
-// Session starten und Datenbankverbindung laden
+// Session und Datenbankverbindung einbinden
 require_once '../session.php';
 require_once '../config/db.php';
 
 $meldung = '';
 
-// Formular wurde abgeschickt
+// Prüfen ob das Formular abgeschickt wurde
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Eingaben bereinigen
+    // Eingaben aus dem Formular übernehmen
     $username = trim($_POST['username']);
     $passwort = $_POST['password'];
 
-    // Überprüfen ob beide Felder ausgefüllt wurden
+    // Prüfen ob beide Felder ausgefüllt wurden
     if ($username && $passwort) {
-        // Passwort sicher hashen (Bcrypt Standard)
+        // Passwort verschlüsseln
         $hash = password_hash($passwort, PASSWORD_DEFAULT);
 
-        // Benutzer in DB speichern
+        // Eintrag in die Datenbank vorbereiten
         $stmt = $pdo->prepare("INSERT INTO project_users (username, password_hash) VALUES (?, ?)");
 
-        // Ausführung prüfen
+        // Wenn Einfügen erfolgreich war → weiterleiten
         if ($stmt->execute([$username, $hash])) {
             // Bei Erfolg: Weiterleitung zur Übersicht
             header('Location: user_list.php');
             exit;
         } else {
-            // Wahrscheinlich Duplikat oder SQL-Fehler
+            // Fehler z. B. bei doppeltem Benutzernamen
             $meldung = "Benutzername bereits vergeben oder Fehler!";
         }
     } else {
@@ -121,14 +121,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 
 <div class="container">
+  <!-- Link zur Startseite -->
   <a href="../startseite.php" class="back-link">⬅️ Zur Startseite</a>
 
   <h2>➕ Benutzer erstellen</h2>
 
+  <!-- Fehlermeldung anzeigen, falls vorhanden -->
   <?php if ($meldung): ?>
     <div class="error-msg"><?= htmlspecialchars($meldung) ?></div>
   <?php endif; ?>
 
+  <!-- Formular zur Benutzererstellung -->
   <form method="post">
     <label>Benutzername:</label>
     <input type="text" name="username" required>
@@ -139,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <button type="submit">Erstellen</button>
   </form>
 
+  <!-- Zurück zur Benutzerliste -->
   <a class="back-link" href="user_list.php">⬅️ Zur Benutzerübersicht</a>
 </div>
 

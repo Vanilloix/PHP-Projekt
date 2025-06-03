@@ -1,14 +1,15 @@
 <?php
+// Sessionprüfung & Datenbankverbindung
 require_once '../session.php';
 require_once '../config/db.php';
 
-// Zugang nur für eingeloggte Benutzer
+// Zugriff nur für eingeloggte Benutzer
 if (!ist_eingeloggt()) {
     header('Location: ../login.php');
     exit;
 }
 
-// Alle Benutzer laden (sortiert)
+// Alle Benutzer aus der Datenbank abrufen, nach ID sortiert
 $stmt = $pdo->query("SELECT * FROM project_users ORDER BY id ASC");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -19,8 +20,10 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
   <meta charset="UTF-8">
   <title>👥 Benutzerverwaltung</title>
+  <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <style>
+    /* Grundlegendes Seitenlayout */
     body {
       margin: 0;
       font-family: 'Quicksand', sans-serif;
@@ -29,6 +32,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
       padding: 2rem;
     }
 
+    /* Container für zentrierten Inhalt */
     .container {
       max-width: 900px;
       margin: auto;
@@ -44,6 +48,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
       color: #4c1d95;
     }
 
+    /* Buttons */
     .btn {
       background: #ede9fe;
       color: #4c1d95;
@@ -59,6 +64,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
       background: #dcd0ff;
     }
 
+    /* Tabellen-Styling */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -100,14 +106,18 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
 
+<!-- Hauptbereich -->
 <div class="container">
   <div class="top-buttons">
+    <!-- Zurück zur Startseite -->
     <a href="../index.php" class="back-link">⬅️ Zur Startseite</a>
+    <!-- Button zum Hinzufügen -->
     <a class="btn" href="user_create.php">➕ Benutzer hinzufügen</a>
   </div>
 
   <h2>👥 Benutzerverwaltung</h2>
 
+  <!-- Tabelle mit allen Benutzern -->
   <table>
     <thead>
       <tr>
@@ -122,7 +132,10 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <td><?= $user['id'] ?></td>
         <td><?= htmlspecialchars($user['username']) ?></td>
         <td>
+          <!-- Passwort ändern -->
           <a class="btn" href="user_update_password.php?id=<?= $user['id'] ?>">🔑 Passwort</a>
+          
+          <!-- Löschen nur wenn nicht Admin (ID 1) -->
           <?php if ($user['id'] !== 1): ?>
             <a class="btn" href="user_delete.php?id=<?= $user['id'] ?>" onclick="return confirm('Benutzer wirklich löschen?')">🗑️ Löschen</a>
           <?php endif; ?>

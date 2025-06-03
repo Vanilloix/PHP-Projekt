@@ -2,10 +2,14 @@
 require_once 'session.php';
 require_once 'config/db.php';
 
+// Verfügbare Filteroptionen
+$validTypes = ['temperature' => 'Temperatur', 'humidity' => 'Feuchtigkeit', 'Luftdruck' => 'Luftdruck'];
+
 $typeFilter = $_GET['type'] ?? '';
 $dateFrom = $_GET['date_from'] ?? '';
 $dateTo = $_GET['date_to'] ?? '';
 
+// Grundabfrage
 $sql = "SELECT timestamp, temperature, humidity, additional_type, additional_value FROM project_measurements WHERE 1=1";
 $params = [];
 
@@ -27,6 +31,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Daten vorbereiten
 $timestamps = [];
 $temps = [];
 $humid = [];
@@ -38,6 +43,7 @@ foreach ($data as $row) {
     $humid[] = $row['humidity'];
     $pressure[] = ($row['additional_type'] === 'Luftdruck') ? (float)$row['additional_value'] : null;
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -119,6 +125,7 @@ foreach ($data as $row) {
 
 <h2>📊 Temperatur & Feuchtigkeit</h2>
 
+<!-- Filterformular -->
 <form method="get">
   <select name="type">
     <option value="">Alle Typen</option>
@@ -131,6 +138,7 @@ foreach ($data as $row) {
   <button type="submit">🔍 Filtern</button>
 </form>
 
+<!-- Diagramm -->
 <div class="scroll-box">
   <div class="chart-container">
     <canvas id="chart"></canvas>

@@ -1,4 +1,4 @@
-/* Gesamtseiten-Styling */
+/* Grundlayout der Seite */
 body {
   font-family: 'Comic Sans MS', cursive, sans-serif;
   background: linear-gradient(to top, #fffbfc, #e0f7ff); /* sanfter Farbverlauf */
@@ -16,7 +16,7 @@ body {
   justify-content: center;
 }
 
-/* Login-Box Design */
+/* Box fürs Login-Formular */
 .login-box {
   background: #fff0f6;
   border: 2px solid #ffb6c1;
@@ -24,17 +24,17 @@ body {
   padding: 30px;
   max-width: 400px;
   width: 90%;
-  box-shadow: 0 8px 24px rgba(255, 182, 193, 0.5); /* rosa Schatten */
+  box-shadow: 0 8px 24px rgba(255, 182, 193, 0.5);
   text-align: center;
 }
 
-/* Titel-Styling */
+/* Login-Titel */
 .login-box h2 {
   margin-bottom: 20px;
   color: #d63384;
 }
 
-/* Inputfelder */
+/* Eingabefelder */
 .login-box input {
   width: 100%;
   padding: 12px;
@@ -45,7 +45,7 @@ body {
   background: #fff8fb;
 }
 
-/* Button-Design */
+/* Buttons im Formular */
 .login-box button {
   background-color: #ff69b4;
   color: white;
@@ -58,12 +58,12 @@ body {
   transition: background 0.3s ease;
 }
 
-/* Button Hover */
+/* Button-Hover-Effekt */
 .login-box button:hover {
   background-color: #ff1493;
 }
 
-/* Fehlerbox */
+/* Fehleranzeige */
 .error-box {
   background: #ffe6ea;
   color: #cc0033;
@@ -73,7 +73,7 @@ body {
   margin-bottom: 15px;
 }
 
-/* Footer-Link unter Login */
+/* Login-Footer */
 .login-footer {
   margin-top: 15px;
   font-size: 0.9em;
@@ -94,7 +94,7 @@ body {
   margin-bottom: 15px;
 }
 
-/* Alternativer Hintergrund für spezielle Seiten */
+/* Alternative Hintergrundklassen */
 body.main-bg {
   background: #fefeff;
   background-image: url('assets/img/bg_dashboard.jpg') no-repeat center center fixed;
@@ -102,7 +102,7 @@ body.main-bg {
   font-family: 'Comic Sans MS', cursive, sans-serif;
 }
 
-/* Container für Inhalte */
+/* Allgemeiner Container */
 .container {
   background: rgba(255,255,255,0.9);
   padding: 2rem;
@@ -112,7 +112,7 @@ body.main-bg {
   box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
 
-/* Standardüberschrift */
+/* Standard-Überschrift */
 h1 {
   text-align: center;
   font-size: 2rem;
@@ -120,7 +120,7 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* Filter-Boxen */
+/* Filterfelder */
 .filter-box {
   display: flex;
   flex-wrap: wrap;
@@ -129,7 +129,7 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* Tabelle im Fancy-Stil */
+/* Tabellenlayout */
 .fancy-table {
   width: 100%;
   border-collapse: collapse;
@@ -159,13 +159,13 @@ h1 {
   font-weight: bold;
 }
 
-/* Leere-Daten-Meldung */
+/* Leere-Tabelle-Hinweis */
 .empty-msg {
   text-align: center;
   color: #888;
 }
 
-/* Abzeichen-Styling */
+/* Badge-Stil */
 .badge {
   padding: 5px 12px;
   border-radius: 20px;
@@ -180,7 +180,7 @@ h1 {
   transform: scale(1.05);
 }
 
-/* Badge Varianten */
+/* Farbvarianten */
 .badge.cold {
   background-color: #e0f7ff;
   color: #0077b6;

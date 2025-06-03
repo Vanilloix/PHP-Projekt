@@ -2,7 +2,7 @@
 require_once 'session.php';
 require_once 'config/db.php';
 
-// Zugriffsschutz: nur eingeloggte User
+// Sicherstellen, dass nur eingeloggte Benutzer Zugriff haben
 if (!ist_eingeloggt()) {
     header("Location: login.php");
     exit;
@@ -10,7 +10,7 @@ if (!ist_eingeloggt()) {
 
 $msg = '';
 
-// Formularauswertung
+// Formularverarbeitung
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Werte mit Fallbacks
     $timestamp = $_POST['timestamp'] ?? date('Y-m-d H:i:s');
@@ -20,14 +20,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $additional_value = $_POST['additional_value'] ?? null;
     $description = $_POST['description'] ?? '';
 
-    // SQL Insert vorbereiten
+    // SQL-Anfrage vorbereiten
     $stmt = $pdo->prepare("
         INSERT INTO project_measurements 
         (timestamp, temperature, humidity, additional_type, additional_value, description)
         VALUES (?, ?, ?, ?, ?, ?)
     ");
 
-    // Daten einfügen
+    // Werte binden und ausführen
     $stmt->execute([
         $timestamp,
         $temperature,
@@ -37,11 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description
     ]);
 
-    // Erfolgsmeldung setzen
+    // Bestätigung anzeigen
     $msg = "✅ Datensatz wurde erfolgreich gespeichert!";
 }
 ?>
 
+<!-- HTML-Teil: Eingabeformular -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
