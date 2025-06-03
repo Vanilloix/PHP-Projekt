@@ -1,155 +1,166 @@
+<?php
+require_once 'session.php';
+require_once 'config/db.php';
+
+// Letzter Timestamp prüfen (innerhalb 90 Sekunden gilt als "online")
+$stmt = $pdo->query("SELECT MAX(timestamp) as last FROM project_measurements");
+$row = $stmt->fetch();
+$lastTimestamp = strtotime($row['last'] ?? '1970-01-01 00:00:00');
+$isOnline = (time() - $lastTimestamp) <= 90;
+
+// Neuste 20 Werte abrufen
+$stmt = $pdo->query("SELECT timestamp, temperature, humidity, additional_type, additional_value 
+                     FROM project_measurements 
+                     ORDER BY timestamp DESC LIMIT 20");
+$data = array_reverse($stmt->fetchAll(PDO::FETCH_ASSOC));
+
+$timestamps = array_column($data, 'timestamp');
+$temperature = array_column($data, 'temperature');
+$humidity = array_column($data, 'humidity');
+$pressure = array_map(function($d) {
+  return $d['additional_type'] === 'Luftdruck' ? (float)$d['additional_value'] : null;
+}, $data);
+?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>📡 Live-Diagramm</title>
+  <title>📡 Live Diagramm – Wetterportal</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Quicksand', sans-serif;
-      background: linear-gradient(to right, #eef2ff, #f0f9ff);
       margin: 0;
       padding: 2rem;
+      background: #f0f4ff;
     }
-
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      background: white;
-      padding: 2rem;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    }
-
-    h2 {
+    h1 {
       text-align: center;
       color: #4c1d95;
     }
-
-    form {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
-
-    select, input[type="date"], button {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-family: inherit;
-    }
-
-    .timestamp-box {
+    .status {
       text-align: center;
-      margin-top: 1rem;
+      margin-bottom: 1rem;
       font-weight: bold;
-      color: #666;
     }
-
-    .btn-download {
-      background: #9333ea;
+    .status span {
+      padding: 6px 12px;
+      border-radius: 8px;
       color: white;
-      border: none;
-      cursor: pointer;
     }
-
-    .btn-download:hover {
-      background: #7e22ce;
+    .online {
+      background-color: #10b981;
     }
-
+    .offline {
+      background-color: #ef4444;
+    }
+    .chart-container {
+      max-width: 1000px;
+      margin: auto;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.08);
+    }
     canvas {
-      margin-top: 2rem;
+      width: 100% !important;
+      height: 400px !important;
+    }
+    .nav-links {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    .nav-links a {
+      margin: 0 10px;
+      color: #4c1d95;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <h2>📈 Live-Messdaten mit Filter</h2>
 
-  <form id="filterForm">
-    <select name="type">
-      <option value="">Alle Typen</option>
-      <option value="CO2">CO2</option>
-      <option value="Licht">Licht</option>
-      <option value="Spannung">Spannung</option>
-      <option value="Luftdruck">Luftdruck</option>
-    </select>
-    <input type="date" name="from">
-    <input type="date" name="to">
-    <button type="submit">🔍 Anwenden</button>
-    <button class="btn-download" type="button" onclick="window.location.href='api/api_messwerte_export.php'">⬇️ CSV</button>
-  </form>
+<h1>📡 Live Diagramm</h1>
 
-  <canvas id="chart" height="100"></canvas>
-  <div class="timestamp-box">Letztes Update: <span id="lastUpdate">–</span></div>
+<div class="status">
+  ESP Status: 
+  <span class="<?= $isOnline ? 'online' : 'offline' ?>">
+    <?= $isOnline ? '🟢 Online' : '🔴 Offline' ?>
+  </span>
+</div>
+
+<div class="chart-container">
+  <canvas id="chart"></canvas>
+</div>
+
+<div class="nav-links">
+  <a href="index.php">⬅️ Zur Startseite</a>
 </div>
 
 <script>
-let chart;
-
 const ctx = document.getElementById('chart').getContext('2d');
-chart = new Chart(ctx, {
+new Chart(ctx, {
   type: 'line',
   data: {
-    labels: [],
+    labels: <?= json_encode($timestamps) ?>,
     datasets: [
       {
         label: '🌡 Temperatur (°C)',
-        data: [],
+        data: <?= json_encode($temperature) ?>,
         borderColor: '#ef4444',
         backgroundColor: 'rgba(239,68,68,0.2)',
-        tension: 0.4
+        tension: 0.3,
+        pointRadius: 5,
+        hoverRadius: 6
       },
       {
-        label: '💧 Feuchtigkeit (%)',
-        data: [],
+        label: '💧 Luftfeuchtigkeit (%)',
+        data: <?= json_encode($humidity) ?>,
         borderColor: '#3b82f6',
         backgroundColor: 'rgba(59,130,246,0.2)',
-        tension: 0.4
+        tension: 0.3,
+        pointRadius: 5,
+        hoverRadius: 6
       },
       {
-        label: '🔵 Luftdruck (hPa)',
-        data: [],
-        borderColor: '#10b981',
-        backgroundColor: 'rgba(16,185,129,0.2)',
-        tension: 0.4
+        label: '📊 Luftdruck (hPa)',
+        data: <?= json_encode($pressure) ?>,
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139,92,246,0.2)',
+        tension: 0.3,
+        pointRadius: 5,
+        hoverRadius: 6,
+        hidden: <?= in_array(null, $pressure) ? 'true' : 'false' ?>
       }
     ]
   },
   options: {
     responsive: true,
-    animation: false,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { font: { size: 14 } } }
+    },
     scales: {
-      x: { title: { display: true, text: 'Zeit' }},
-      y: { title: { display: true, text: 'Wert' }}
+      x: {
+        title: { display: true, text: 'Zeitstempel' },
+        ticks: {
+          autoSkip: true,
+          maxTicksLimit: 20,
+          maxRotation: 45,
+          minRotation: 45
+        }
+      },
+      y: {
+        title: { display: true, text: 'Wert' }
+      }
     }
   }
 });
-
-async function fetchData() {
-  const form = document.getElementById("filterForm");
-  const params = new URLSearchParams(new FormData(form));
-  const res = await fetch("api/api_messwerte.php?" + params.toString());
-  const data = await res.json();
-
-  chart.data.labels = data.map(d => d.timestamp);
-  chart.data.datasets[0].data = data.map(d => d.temperature);
-  chart.data.datasets[1].data = data.map(d => d.humidity);
-  chart.data.datasets[2].data = data.map(d => d.additional_value);
-
-  document.getElementById("lastUpdate").textContent = new Date().toLocaleTimeString();
-  chart.update();
-}
-
-document.getElementById("filterForm").addEventListener("submit", e => {
-  e.preventDefault();
-  fetchData();
-});
-
-fetchData();
-setInterval(fetchData, 5000);
 </script>
+
 </body>
 </html>

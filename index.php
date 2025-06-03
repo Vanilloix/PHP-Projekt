@@ -166,6 +166,11 @@ $username = $_SESSION['username'] ?? 'Gast';
     <span>Benutzer</span>
   </a>
 
+  <a href="start.php" class="circle-card">
+    <img src="assets/icons/start.svg" alt="Startscreen">
+    <span>Startscreen</span>
+  </a>
+
   <?php if ($isLoggedIn): ?>
     <a href="logout.php" class="circle-card">
       <img src="assets/icons/sunset-logout.svg" alt="Logout">
