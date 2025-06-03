@@ -2,7 +2,7 @@
 require_once '../session.php';
 require_once '../config/db.php';
 
-// Prüfen ob eine ID übergeben wurde
+// Wenn keine ID übergeben wurde → zurück zur Übersicht
 if (!isset($_GET['id'])) {
     header('Location: user_list.php');
     exit;
@@ -10,16 +10,17 @@ if (!isset($_GET['id'])) {
 
 $id = (int) $_GET['id'];
 
-// Schutzmechanismus: Admin-Benutzer (ID 1) darf nicht gelöscht werden
+// Schutz: Admin-Account darf nicht gelöscht werden
 if ($id === 1) {
     header('Location: user_list.php');
     exit;
 }
 
-// Benutzer aus der Datenbank löschen
+// Benutzer anhand der ID löschen
 $stmt = $pdo->prepare("DELETE FROM project_users WHERE id = ?");
 $stmt->execute([$id]);
 
-// Zurück zur Benutzerliste
+// Danach: Zur Benutzerübersicht
 header('Location: user_list.php');
 exit;
+?>

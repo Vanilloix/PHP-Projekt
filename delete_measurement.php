@@ -9,6 +9,14 @@ if (!ist_eingeloggt()) {
 
 $msg = '';
 
+// Einzel-Löschung über GET
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+    $stmt = $pdo->prepare("DELETE FROM project_measurements WHERE id = ?");
+    $stmt->execute([$_GET['id']]);
+    $msg = "Messwert mit ID #" . intval($_GET['id']) . " wurde gelöscht.";
+}
+
+// Mehrfachlöschung über POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_ids'])) {
     $ids = $_POST['delete_ids'];
     if (is_array($ids) && count($ids) > 0) {
@@ -21,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_ids'])) {
     }
 }
 
-// Daten laden
+// Daten abrufen
 $stmt = $pdo->query("SELECT * FROM project_measurements ORDER BY timestamp DESC");
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -113,6 +121,17 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
       font-weight: bold;
       color: #444;
     }
+
+    .delete-icon {
+      text-decoration: none;
+      font-size: 1.2rem;
+      color: #dc2626;
+    }
+
+    .delete-icon:hover {
+      text-decoration: underline;
+      color: #b91c1c;
+    }
   </style>
 </head>
 <body>
@@ -136,6 +155,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <th>Typ</th>
           <th>Wert</th>
           <th>Beschreibung</th>
+          <th>Aktion</th>
         </tr>
       </thead>
       <tbody>
@@ -149,6 +169,11 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <td><?= $row['additional_type'] ?></td>
             <td><?= $row['additional_value'] ?></td>
             <td><?= $row['description'] ?></td>
+            <td>
+              <a href="?id=<?= $row['id'] ?>" 
+                 class="delete-icon" 
+                 onclick="return confirm('Diesen Eintrag wirklich löschen?')">🗑️</a>
+            </td>
           </tr>
         <?php endforeach; ?>
       </tbody>

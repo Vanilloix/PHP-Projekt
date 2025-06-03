@@ -151,6 +151,7 @@ $username = $_SESSION['username'] ?? 'Gast';
     <span>Messwerte</span>
   </a>
 
+  <?php if ($isLoggedIn): ?>
   <a href="add_measurement.php" class="circle-card">
     <img src="assets/icons/thermo-plus.svg" alt="Hinzufügen">
     <span>Hinzufügen</span>
@@ -165,6 +166,7 @@ $username = $_SESSION['username'] ?? 'Gast';
     <img src="assets/icons/user-settings.svg" alt="Benutzer">
     <span>Benutzer</span>
   </a>
+<?php endif; ?>
 
   <a href="start.php" class="circle-card">
     <img src="assets/icons/start.svg" alt="Startscreen">

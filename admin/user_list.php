@@ -2,13 +2,13 @@
 require_once '../session.php';
 require_once '../config/db.php';
 
-// Nur eingeloggte Benutzer dürfen auf diese Seite
+// Zugang nur für eingeloggte Benutzer
 if (!ist_eingeloggt()) {
     header('Location: ../login.php');
     exit;
 }
 
-// Alle Benutzer aus der Datenbank abrufen
+// Alle Benutzer laden (sortiert)
 $stmt = $pdo->query("SELECT * FROM project_users ORDER BY id ASC");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

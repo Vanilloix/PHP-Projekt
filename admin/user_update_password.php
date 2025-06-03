@@ -2,7 +2,7 @@
 require_once '../session.php';
 require_once '../config/db.php';
 
-// Prüfen ob eine Benutzer-ID übergeben wurde
+// ID prüfen
 if (!isset($_GET['id'])) {
     header("Location: user_list.php");
     exit;
@@ -11,26 +11,25 @@ if (!isset($_GET['id'])) {
 $id = (int) $_GET['id'];
 $meldung = '';
 
-// Formularverarbeitung
+// Neues Passwort gesetzt?
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $neues_passwort = $_POST['password'];
 
     if (!empty($neues_passwort)) {
-        // Neues Passwort hashen und aktualisieren
+        // Sicher hashen und speichern
         $hash = password_hash($neues_passwort, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("UPDATE project_users SET password_hash = ? WHERE id = ?");
         $stmt->execute([$hash, $id]);
 
-        // Weiterleitung nach erfolgreichem Update
+        // Zurück zur Liste
         header("Location: user_list.php");
         exit;
     } else {
-        // Passwortfeld war leer
         $meldung = "Bitte ein neues Passwort eingeben.";
     }
 }
 
-// Benutzername zur Anzeige laden
+// Username laden für Anzeige
 $stmt = $pdo->prepare("SELECT username FROM project_users WHERE id = ?");
 $stmt->execute([$id]);
 $user = $stmt->fetch();

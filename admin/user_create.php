@@ -1,35 +1,34 @@
 <?php
-// Session und Datenbankverbindung laden
+// Session starten und Datenbankverbindung laden
 require_once '../session.php';
 require_once '../config/db.php';
 
 $meldung = '';
 
-// Prüfen ob das Formular per POST gesendet wurde
+// Formular wurde abgeschickt
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Eingaben bereinigen
     $username = trim($_POST['username']);
     $passwort = $_POST['password'];
 
-    // Validierung: Felder müssen ausgefüllt sein
+    // Überprüfen ob beide Felder ausgefüllt wurden
     if ($username && $passwort) {
-        // Passwort sicher hashen
+        // Passwort sicher hashen (Bcrypt Standard)
         $hash = password_hash($passwort, PASSWORD_DEFAULT);
 
-        // Benutzer mit vorbereitetem Statement einfügen
+        // Benutzer in DB speichern
         $stmt = $pdo->prepare("INSERT INTO project_users (username, password_hash) VALUES (?, ?)");
-        
+
         // Ausführung prüfen
         if ($stmt->execute([$username, $hash])) {
-            // Erfolgreich: Zur Liste weiterleiten
+            // Bei Erfolg: Weiterleitung zur Übersicht
             header('Location: user_list.php');
             exit;
         } else {
-            // Fehler beim Einfügen, z. B. Benutzername bereits vorhanden
+            // Wahrscheinlich Duplikat oder SQL-Fehler
             $meldung = "Benutzername bereits vergeben oder Fehler!";
         }
     } else {
-        // Felder nicht ausgefüllt
         $meldung = "Bitte alle Felder ausfüllen.";
     }
 }

@@ -44,29 +44,31 @@ if (isset($_POST['import'])) {
             } else {
                 $msg = "❌ Fehler beim Öffnen der CSV-Datei.";
             }
-        } elseif ($extension === 'xml') {
-            $xml = simplexml_load_file($fileTmpPath);
-            if ($xml !== false && isset($xml->eintrag)) {
-                foreach ($xml->eintrag as $m) {
-                    $stmt = $pdo->prepare("
-                        INSERT INTO project_measurements 
-                        (timestamp, temperature, humidity, additional_type, additional_value, description)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    ");
-                    $stmt->execute([
-                        (string)$m->timestamp,
-                        (float)$m->temperature,
-                        (float)$m->humidity,
-                        (string)$m->additional_type,
-                        (float)$m->additional_value,
-                        (string)$m->description
-                    ]);
-                    $imported++;
+            } elseif ($extension === 'json') {
+                $jsonContent = file_get_contents($fileTmpPath);
+                $jsonData = json_decode($jsonContent, true);
+
+                if (is_array($jsonData)) {
+                    foreach ($jsonData as $row) {
+                        $stmt = $pdo->prepare("
+                            INSERT INTO project_measurements 
+                            (timestamp, temperature, humidity, additional_type, additional_value, description)
+                            VALUES (?, ?, ?, ?, ?, ?)
+                        ");
+                        $stmt->execute([
+                            $row['timestamp'] ?? null,
+                            $row['temperature'] ?? null,
+                            $row['humidity'] ?? null,
+                            $row['additional_type'] ?? null,
+                            $row['additional_value'] ?? null,
+                            $row['description'] ?? null
+                        ]);
+                        $imported++;
+                    }
+                    $msg = "✅ JSON-Import abgeschlossen: $imported Messwerte übernommen.";
+                } else {
+                    $msg = "❌ Fehler beim Parsen der JSON-Datei.";
                 }
-                $msg = "✅ XML-Import abgeschlossen: $imported Messwerte übernommen.";
-            } else {
-                $msg = "❌ Fehler beim Parsen oder keine gültigen <eintrag> Elemente gefunden.";
-            }
         } else {
             $msg = "❌ Nur CSV oder XML erlaubt!";
         }
@@ -145,10 +147,10 @@ if (isset($_POST['import'])) {
 <body>
 
 <div class="container">
-  <h1>📤 Datei importieren (CSV oder XML)</h1>
+  <h1>📤 Datei importieren (CSV)</h1>
 
   <form method="post" enctype="multipart/form-data">
-    <input type="file" name="data_file" accept=".csv,.xml" required>
+    <input type="file" name="data_file" accept=".csv,.json" required>
     <button type="submit" name="import">🚀 Importieren</button>
   </form>
 

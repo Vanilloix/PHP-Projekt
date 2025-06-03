@@ -7,69 +7,62 @@ if (!ist_eingeloggt()) {
     exit;
 }
 
-header('Content-Type: text/plain');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $type = $_POST['format'] ?? 'csv';
+    $start = $_POST['from'] ?? null;
+    $end = $_POST['to'] ?? null;
+    $filterType = $_POST['type'] ?? null;
 
-$type = $_GET['type'] ?? 'csv'; // csv oder xml
-$start = $_GET['start'] ?? null;
-$end = $_GET['end'] ?? null;
-$filterType = $_GET['additional_type'] ?? null;
+    $query = "SELECT * FROM project_measurements WHERE 1";
+    $params = [];
 
-$query = "SELECT * FROM project_measurements WHERE 1";
-$params = [];
-
-if ($start) {
-    $query .= " AND timestamp >= ?";
-    $params[] = $start;
-}
-if ($end) {
-    $query .= " AND timestamp <= ?";
-    $params[] = $end;
-}
-if ($filterType) {
-    $query .= " AND additional_type = ?";
-    $params[] = $filterType;
-}
-
-$stmt = $pdo->prepare($query);
-$stmt->execute($params);
-$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-if ($type === 'xml') {
-    header('Content-Type: application/xml');
-    header('Content-Disposition: attachment; filename="messwerte_export.xml"');
-
-    $xml = new SimpleXMLElement('<measurements/>');
-    foreach ($data as $row) {
-        $m = $xml->addChild('measurement');
-        $m->addChild('timestamp', date("d.m.Y H:i \U\h\r", strtotime($row['timestamp'])));
-        $m->addChild('temperature', $row['temperature']);
-        $m->addChild('humidity', $row['humidity']);
-        $m->addChild('additional_type', $row['additional_type']);
-        $m->addChild('additional_value', $row['additional_value']);
-        $m->addChild('description', htmlspecialchars($row['description']));
+    if ($start) {
+        $query .= " AND timestamp >= ?";
+        $params[] = $start . " 00:00:00";
     }
-    echo $xml->asXML();
-} else {
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="messwerte_export.csv"');
-
-    $output = fopen('php://output', 'w');
-    fputcsv($output, ['Zeitstempel', 'Temperatur', 'Feuchtigkeit', 'Typ', 'Wert', 'Beschreibung']);
-
-    foreach ($data as $row) {
-        fputcsv($output, [
-            date("d.m.Y H:i \U\h\r", strtotime($row['timestamp'])),
-            $row['temperature'],
-            $row['humidity'],
-            $row['additional_type'],
-            $row['additional_value'],
-            $row['description']
-        ]);
+    if ($end) {
+        $query .= " AND timestamp <= ?";
+        $params[] = $end . " 23:59:59";
+    }
+    if ($filterType) {
+        $query .= " AND additional_type = ?";
+        $params[] = $filterType;
     }
 
-    fclose($output);
-}
+    $stmt = $pdo->prepare($query);
+    $stmt->execute($params);
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($type === 'json') {
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename="messwerte_export.json"');
+        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    } else {
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="messwerte_export.csv"');
+
+        // UTF-8 BOM für Excel
+        echo "\xEF\xBB\xBF";
+
+        $output = fopen('php://output', 'w');
+        fputcsv($output, ['Zeitstempel', 'Temperatur', 'Feuchtigkeit', 'Typ', 'Wert', 'Beschreibung'], ';');
+
+        foreach ($data as $row) {
+            fputcsv($output, [
+                date("d.m.Y H:i", strtotime($row['timestamp'])),
+                $row['temperature'],
+                $row['humidity'],
+                $row['additional_type'],
+                $row['additional_value'],
+                $row['description']
+            ], ';');
+        }
+
+        fclose($output);
+    }
+
     exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -170,7 +163,7 @@ if ($type === 'xml') {
     <label for="format">Format:</label>
     <select name="format" id="format">
       <option value="csv">CSV</option>
-      <option value="xml">XML</option>
+      <option value="json">JSON</option>
     </select>
 
     <button type="submit">📥 Export starten</button>

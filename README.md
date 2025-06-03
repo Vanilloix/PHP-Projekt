@@ -1,91 +1,92 @@
-````markdown
-##  PHP-Projekt zur Messdatenerfassung
+# 🌤 PHP-Projekt: Messdatenerfassung
 
-Ein Tool zur Verwaltung und Visualisierung von Temperatur-, Feuchtigkeits- und Zusatzdaten mit PHP, MySQL und ESP32.
+Ein webbasiertes Tool zur Verwaltung, Anzeige und Analyse von Sensordaten (Temperatur, Luftfeuchtigkeit, Zusatzwerte) mit PHP, MySQL und ESP32.
 
 ---
 
 ## 🔧 Funktionen
 
-- 📥 CSV-Import von Messwerten
-- 📊 Übersichtstabelle mit Filtern
-- 📡 Anbindung eines ESP32 zur Live-Datenerfassung
-- 🔐 Benutzerverwaltung (Login, Logout, Passwort ändern)
-- 🗑️ Löschfunktion für Messwerte
-- 📤 Export als CSV
-- 💅 Einheitliches UI mit Icons & Hintergrund
+- 📥 Import (CSV & XML)
+- 📊 Filterbare Übersichtstabelle
+- 📡 Echtzeitdaten vom ESP32 (via HTTP POST)
+- 🔐 Benutzerverwaltung (Login, Registrierung, Passwort ändern)
+- 🗑️ Messwert-Löschung (nur eingeloggt)
+- 📤 Export (CSV & XML)
+- 📈 Diagramme & Live-Visualisierung (Chart.js)
+- 🎨 Modernes UI mit Animationen & Icons
 
 ---
 
-## 📦 Verwendete Technologien
+## ⚙️ Verwendete Technologien
 
-- PHP 8.x
-- MySQL 
-- HTML
-- ESP32 (Funduino)
-- Arduino IDE 2.x
+| Technologie  | Zweck                  |
+|--------------|------------------------|
+| PHP 8.x      | Backend-Logik & API    |
+| MySQL        | Datenhaltung           |
+| HTML/CSS     | Benutzeroberfläche     |
+| Chart.js     | Diagramme              |
+| ESP32        | Sensordatenerfassung   |
+| Arduino IDE  | Microcontroller-Setup  |
 
 ---
 
 ## 🗃️ Datenbankstruktur
 
 ```sql
-project_measurements
-- id (int)
-- timestamp (datetime)
-- temperature (float)
-- humidity (float)
-- additional_type (varchar)
-- additional_value (float)
-- description (varchar)
+-- Tabelle: project_measurements
+id                INT (PK)
+timestamp         DATETIME
+temperature       FLOAT
+humidity          FLOAT
+additional_type   VARCHAR(50)
+additional_value  FLOAT
+description       VARCHAR(255)
 
-project_users
-- id (int)
-- username (varchar)
-- password_hash (varchar)
-````
-
----
-
-## 🔐 Beispiel-Login
-
-```txt
-Benutzer: admin
-Passwort: geheim123
+-- Tabelle: project_users
+id                INT (PK)
+username          VARCHAR(255) UNIQUE
+password_hash     VARCHAR(255)
 ```
 
+---
 
-## 👩‍💻 Team / Autor
+## 🧪 Test-Zugang
 
-Name: \[Anna Tetzlaff]
-Datum: 2025-06-02
-Präsentation: 23. Juni 2025
-
-````
+```txt
+Benutzername: test
+Passwort: test
+```
 
 ---
 
-## 🧠 ERM-Modell (Text-Form)
+## 🔗 ERM-Beziehung
 
 ```plaintext
-[project_users]
-+----------------+     1
-| id (PK)        |<-------------+
-| username       |              |
-| password_hash  |              |
-+----------------+              |
-                                | n
-                                |
-                                v
-+-----------------------------+
-|      project_measurements   |
-+-----------------------------+
-| id (PK)                     |
-| timestamp                   |
-| temperature                 |
-| humidity                    |
-| additional_type             |
-| additional_value            |
-| description                 |
-+-----------------------------+
-````
+[project_users] 1 -------- n [project_measurements]
+```
+
+---
+
+## 🧭 Projektübersicht
+
+- Start-Dashboard mit Kachelmenü
+- Live-Diagramm + Online-Statusanzeige
+- Dateiimport für CSV/XML
+- Detailanzeige für Messdaten
+- Benutzerverwaltung mit Admin-Schutz
+
+---
+
+## 👩‍💻 Projektdaten
+
+- **Name**: Anna Tetzlaff  
+- **Abgabe**: 03. Juni 2025  
+- **Präsentation**: ab 23. Juni 2025  
+- **Projektordner**: `/PHP-PROJEKT`
+
+---
+
+## 📌 Hinweise zur Nutzung
+
+- `create_database.sql` ausführen  
+- `http://localhost/PHP-PROJEKT/start.php` Startseite öffnen
