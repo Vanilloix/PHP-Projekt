@@ -11,7 +11,7 @@ $username = $_SESSION['username'] ?? 'Gast';
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>🌤 Wetter-Dashboard</title>
+  <title>🌤 Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -122,59 +122,64 @@ $username = $_SESSION['username'] ?? 'Gast';
 <body>
 
 <div class="container">
-  <h1>🌸 Wetterportal</h1>
+  <h1>🌡️ PHP Projekt – Messdatenerfassung</h1>
   <p class="welcome">Willkommen, <strong><?= htmlspecialchars($username) ?></strong> 👋</p>
 
-  <div class="icon-grid">
-    <a href="diagramm.php" class="circle-card">
-      <img src="assets/icons/sun-chart.svg" alt="Diagramm">
-      <span>Diagramm</span>
+<div class="icon-grid">
+  <a href="diagramm.php" class="circle-card">
+    <img src="assets/icons/sun-chart.svg" alt="Diagramm">
+    <span>Diagramm</span>
+  </a>
+
+  <a href="live_diagramm.php" class="circle-card">
+    <img src="assets/icons/live.svg" alt="Live Diagramm">
+    <span>Live</span>
+  </a>
+
+  <a href="import.php" class="circle-card">
+    <img src="assets/icons/cloud-upload.svg" alt="Import">
+    <span>Import</span>
+  </a>
+
+  <a href="export.php" class="circle-card">
+    <img src="assets/icons/cloud-download.svg" alt="Export">
+    <span>Export</span>
+  </a>
+
+  <a href="messwerte.php" class="circle-card">
+    <img src="assets/icons/wind-data.svg" alt="Messwerte">
+    <span>Messwerte</span>
+  </a>
+
+  <a href="add_measurement.php" class="circle-card">
+    <img src="assets/icons/thermo-plus.svg" alt="Hinzufügen">
+    <span>Hinzufügen</span>
+  </a>
+
+  <a href="delete_measurement.php" class="circle-card">
+    <img src="assets/icons/rain-trash.svg" alt="Löschen">
+    <span>Löschen</span>
+  </a>
+
+  <a href="admin/user_list.php" class="circle-card">
+    <img src="assets/icons/user-settings.svg" alt="Benutzer">
+    <span>Benutzer</span>
+  </a>
+
+  <?php if ($isLoggedIn): ?>
+    <a href="logout.php" class="circle-card">
+      <img src="assets/icons/sunset-logout.svg" alt="Logout">
+      <span>Logout</span>
     </a>
-
-    <a href="import.php" class="circle-card">
-      <img src="assets/icons/cloud-upload.svg" alt="Import">
-      <span>Import</span>
+  <?php else: ?>
+    <a href="login.php" class="circle-card">
+      <img src="assets/icons/lock-cloud.svg" alt="Login">
+      <span>Login</span>
     </a>
+  <?php endif; ?>
+</div>
 
-    <a href="export.php" class="circle-card">
-      <img src="assets/icons/cloud-download.svg" alt="Export">
-      <span>Export</span>
-    </a>
-
-    <a href="messwerte.php" class="circle-card">
-      <img src="assets/icons/wind-data.svg" alt="Messwerte">
-      <span>Messwerte</span>
-    </a>
-
-    <a href="add_measurement.php" class="circle-card">
-      <img src="assets/icons/thermo-plus.svg" alt="Hinzufügen">
-      <span>Hinzufügen</span>
-    </a>
-
-    <a href="delete_measurement.php" class="circle-card">
-      <img src="assets/icons/rain-trash.svg" alt="Löschen">
-      <span>Löschen</span>
-    </a>
-
-    <a href="admin/user_list.php" class="circle-card">
-      <img src="assets/icons/user-settings.svg" alt="Benutzer">
-      <span>Benutzer</span>
-    </a>
-
-    <?php if ($isLoggedIn): ?>
-      <a href="logout.php" class="circle-card">
-        <img src="assets/icons/sunset-logout.svg" alt="Logout">
-        <span>Logout</span>
-      </a>
-    <?php else: ?>
-      <a href="login.php" class="circle-card">
-        <img src="assets/icons/lock-cloud.svg" alt="Login">
-        <span>Login</span>
-      </a>
-    <?php endif; ?>
-  </div>
-
-  <div class="footer">© 2025 Wetterprojekt – mit ☁️ & 💜</div>
+  <div class="footer">PHP Projekt – Messdatenerfassung 2025 - Anna Tetzlaff</div>
 </div>
 
 </body>

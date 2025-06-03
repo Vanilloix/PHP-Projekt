@@ -6,7 +6,7 @@ $typeFilter = $_GET['type'] ?? '';
 $dateFrom = $_GET['date_from'] ?? '';
 $dateTo = $_GET['date_to'] ?? '';
 
-$sql = "SELECT timestamp, temperature, humidity FROM project_measurements WHERE 1=1";
+$sql = "SELECT timestamp, temperature, humidity, additional_type, additional_value FROM project_measurements WHERE 1=1";
 $params = [];
 
 if ($typeFilter !== '') {
@@ -30,43 +30,34 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $timestamps = [];
 $temps = [];
 $humid = [];
+$pressure = [];
 
 foreach ($data as $row) {
     $timestamps[] = $row['timestamp'];
     $temps[] = $row['temperature'];
     $humid[] = $row['humidity'];
+    $pressure[] = ($row['additional_type'] === 'Luftdruck') ? (float)$row['additional_value'] : null;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>📈 Messwerte Diagramm</title>
+  <title>📈 Temperatur & Feuchtigkeit</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Quicksand', sans-serif;
-      background: url('assets/img/bg_diagram.jpg') no-repeat center center fixed;
-      background-size: cover;
+      background: #f9f9ff;
       margin: 0;
       padding: 2rem;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      background: rgba(255, 255, 255, 0.93);
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 12px 25px rgba(0,0,0,0.1);
     }
 
     h2 {
       text-align: center;
       color: #4c1d95;
-      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
     }
 
     form {
@@ -74,26 +65,20 @@ foreach ($data as $row) {
       flex-wrap: wrap;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 1.5rem;
     }
 
-    label {
-      font-weight: bold;
-    }
-
-    select, input {
-      padding: 8px;
-      border-radius: 8px;
+    select, input[type="date"], button {
+      padding: 10px 14px;
       border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
     }
 
     button {
       background: #9333ea;
       color: white;
       border: none;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-weight: bold;
       cursor: pointer;
     }
 
@@ -101,10 +86,18 @@ foreach ($data as $row) {
       background: #7e22ce;
     }
 
+    .scroll-box {
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
     .chart-container {
+      width: 1400px;
+      height: 400px;
+      margin: auto;
       background: white;
-      padding: 1rem;
       border-radius: 15px;
+      padding: 1rem;
       box-shadow: 0 5px 20px rgba(0,0,0,0.07);
     }
 
@@ -124,64 +117,86 @@ foreach ($data as $row) {
 </head>
 <body>
 
-<div class="container">
-  <h2>📈 Messwerte Diagramm</h2>
+<h2>📊 Temperatur & Feuchtigkeit</h2>
 
-  <form method="get">
-    <label for="type">Typ:</label>
-    <select name="type" id="type">
-      <option value="">Alle</option>
-      <option value="CO2" <?= $typeFilter == 'CO2' ? 'selected' : '' ?>>CO2</option>
-      <option value="Licht" <?= $typeFilter == 'Licht' ? 'selected' : '' ?>>Licht</option>
-      <option value="Spannung" <?= $typeFilter == 'Spannung' ? 'selected' : '' ?>>Spannung</option>
-    </select>
+<form method="get">
+  <select name="type">
+    <option value="">Alle Typen</option>
+    <option value="CO2" <?= $typeFilter == 'CO2' ? 'selected' : '' ?>>CO2</option>
+    <option value="Licht" <?= $typeFilter == 'Licht' ? 'selected' : '' ?>>Licht</option>
+    <option value="Spannung" <?= $typeFilter == 'Spannung' ? 'selected' : '' ?>>Spannung</option>
+  </select>
+  <input type="date" name="date_from" value="<?= htmlspecialchars($dateFrom) ?>">
+  <input type="date" name="date_to" value="<?= htmlspecialchars($dateTo) ?>">
+  <button type="submit">🔍 Filtern</button>
+</form>
 
-    <label for="date_from">Von:</label>
-    <input type="date" name="date_from" value="<?= htmlspecialchars($dateFrom) ?>">
-
-    <label for="date_to">Bis:</label>
-    <input type="date" name="date_to" value="<?= htmlspecialchars($dateTo) ?>">
-
-    <button type="submit">Filtern</button>
-  </form>
-
+<div class="scroll-box">
   <div class="chart-container">
-    <canvas id="chart" height="100"></canvas>
+    <canvas id="chart"></canvas>
   </div>
-
-  <a href="index.php" class="back-link">⬅️ Zur Startseite</a>
 </div>
+
+<a href="index.php" class="back-link">⬅️ Zurück zur Startseite</a>
 
 <script>
 const ctx = document.getElementById('chart').getContext('2d');
 new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: <?= json_encode($timestamps) ?>,
-        datasets: [
-            {
-                label: '🌡 Temperatur (°C)',
-                data: <?= json_encode($temps) ?>,
-                borderColor: '#f87171',
-                backgroundColor: 'rgba(248,113,113,0.3)',
-                tension: 0.3
-            },
-            {
-                label: '💧 Luftfeuchtigkeit (%)',
-                data: <?= json_encode($humid) ?>,
-                borderColor: '#60a5fa',
-                backgroundColor: 'rgba(96,165,250,0.3)',
-                tension: 0.3
-            }
-        ]
-    },
-    options: {
-        responsive: true,
-        scales: {
-            x: { title: { display: true, text: 'Zeitstempel' } },
-            y: { title: { display: true, text: 'Wert' } }
+  type: 'line',
+  data: {
+    labels: <?= json_encode($timestamps) ?>,
+    datasets: [
+      {
+        label: '🌡 Temperatur (°C)',
+        data: <?= json_encode($temps) ?>,
+        borderColor: '#ef4444',
+        backgroundColor: 'rgba(239,68,68,0.2)',
+        tension: 0.3,
+        pointRadius: 2
+      },
+      {
+        label: '💧 Luftfeuchtigkeit (%)',
+        data: <?= json_encode($humid) ?>,
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59,130,246,0.2)',
+        tension: 0.3,
+        pointRadius: 2
+      },
+      {
+        label: '⏱ Luftdruck (hPa)',
+        data: <?= json_encode($pressure) ?>,
+        borderColor: '#a855f7',
+        backgroundColor: 'rgba(168,85,247,0.2)',
+        tension: 0.3,
+        pointRadius: 2
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          font: { size: 14 }
         }
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Zeitstempel' },
+        ticks: {
+          autoSkip: true,
+          maxTicksLimit: 10,
+          maxRotation: 45,
+          minRotation: 45
+        }
+      },
+      y: {
+        title: { display: true, text: 'Messwert' }
+      }
     }
+  }
 });
 </script>
 

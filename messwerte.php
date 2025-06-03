@@ -1,7 +1,6 @@
 <?php
 require_once 'config/db.php';
 
-// Alle Messdaten absteigend holen
 $stmt = $pdo->query("SELECT * FROM project_measurements ORDER BY timestamp DESC");
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -82,7 +81,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <thead>
         <tr>
           <th>ID</th>
-          <th>Timestamp</th>
+          <th>Datum</th>
           <th>Temperatur (°C)</th>
           <th>Feuchtigkeit (%)</th>
           <th>Typ</th>
@@ -94,7 +93,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($data as $row): ?>
           <tr>
             <td><?= $row['id'] ?></td>
-            <td><?= $row['timestamp'] ?></td>
+            <td><?= date('d.m.Y H:i', strtotime($row['timestamp'])) ?></td>
             <td><?= $row['temperature'] ?></td>
             <td><?= $row['humidity'] ?></td>
             <td><?= $row['additional_type'] ?></td>

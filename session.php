@@ -2,7 +2,7 @@
 session_start();
 
 function ist_eingeloggt() {
-    return isset($_SESSION['user_id']);
+    return isset($_SESSION['user_id']) || isset($_SESSION['is_guest']);
 }
 
 // Seiten, die auch ohne Login zugänglich sind
